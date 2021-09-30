@@ -4,6 +4,7 @@ class nodo_estado:
         self.padre = EP
         self.accion = A
         self.nivel = n
+        self.distancia = None
     
     def get_estado(self):
         return self.valor
@@ -16,6 +17,12 @@ class nodo_estado:
 
     def get_nivel(self):
         return self.nivel
+
+    def get_distancia(self):
+        return self.distancia
+
+    def set_distancia(self, distancia):
+        self.distancia = distancia
 
     def __eq__(self, e):
         return self.valor == e
