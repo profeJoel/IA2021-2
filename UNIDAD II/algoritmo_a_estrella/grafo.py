@@ -6,6 +6,7 @@ class grafo:
         self.nodos = []
         self.arcos = []
         #debemos realizar la lectura y carga del grafo
+        self.lee_archivo_grafo(archivo_grafo)
 
     def get_nodo(self, indice):
         return self.nodos[indice]

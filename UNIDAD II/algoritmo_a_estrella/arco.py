@@ -23,4 +23,4 @@ class arco:
     
     def __str__(self):
         """|ORIGEN| -> coste -> |destino|"""
-        return "|" + str(self.origen) + "| -> " + self.coste + " -> |" + str(self.destino) + "|"
+        return "|" + str(self.origen) + "| -> " + str(self.coste) + " -> |" + str(self.destino) + "|"
