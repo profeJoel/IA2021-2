@@ -80,6 +80,7 @@ class busqueda:
             for sucesor in sucesores:
                 estado_temporal = self.mover(sucesor)
                 if not self.esta_en_historial(estado_temporal):
+                    estado_temporal.set_g(self.estado_actual, sucesor.get_coste())
                     estado_temporal.set_h(self.estado_final)
                     cola_transitoria.append(estado_temporal)
                     N += 1
