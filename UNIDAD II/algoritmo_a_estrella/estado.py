@@ -50,6 +50,9 @@ class estado:
         if e is None:
             self.h = -1
 
+        elif type(e) == int and e == 0:
+            self.h = 0 
+
         else:
             objetivo = e.get_estado()
             #la distancia entre el estado actual y el estado e

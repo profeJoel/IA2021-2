@@ -90,6 +90,62 @@ class busqueda:
 
             return self.algoritmo_a_estrella(self.pop(), i + 1)
 
+    def busqueda_avara(self, inicial, i):
+        self.estado_actual = inicial
+        cola_transitoria = []
+
+        if self.es_final():
+            self.buscar_padre(inicial)
+            print("Algoritmo A* Llega a Solucion")
+            print("Historial: " + str(len(self.historial)))
+            print("Cola Estados: " + str(len(self.cola_estados)))
+            print("Iteraciones: " + str(i))
+            print("Coste Total: " + str(self.estado_actual.get_f()))
+        else:
+            sucesores = self.estado_actual.get_sucesores()
+            N = 0
+            for sucesor in sucesores:
+                estado_temporal = self.mover(sucesor)
+                if not self.esta_en_historial(estado_temporal):
+                    estado_temporal.set_g(self.estado_actual, 0) # obliga que el coste acumulado sea 0
+                    estado_temporal.set_h(self.estado_final)
+                    cola_transitoria.append(estado_temporal)
+                    N += 1
+            
+            cola_transitoria.sort(key=ordenar_por_h)
+            self.traspasar_a_cola(cola_transitoria, N)
+
+            return self.busqueda_avara(self.pop(), i + 1)
+
+    def busqueda_uniforme(self, inicial, i):
+        self.estado_actual = inicial
+        cola_transitoria = []
+
+        if self.es_final():
+            self.buscar_padre(inicial)
+            print("Algoritmo A* Llega a Solucion")
+            print("Historial: " + str(len(self.historial)))
+            print("Cola Estados: " + str(len(self.cola_estados)))
+            print("Iteraciones: " + str(i))
+            print("Coste Total: " + str(self.estado_actual.get_f()))
+        else:
+            sucesores = self.estado_actual.get_sucesores()
+            N = 0
+            for sucesor in sucesores:
+                estado_temporal = self.mover(sucesor)
+                if not self.esta_en_historial(estado_temporal):
+                    estado_temporal.set_g(self.estado_actual, sucesor.get_coste())
+                    estado_temporal.set_h(0) # no se considera
+                    cola_transitoria.append(estado_temporal)
+                    N += 1
+            
+            cola_transitoria.sort(key=ordenar_por_g)
+            self.traspasar_a_cola(cola_transitoria, N)
+
+            return self.busqueda_uniforme(self.pop(), i + 1)
+
     def init(self):
         self.add(self.estado_inicial)
-        self.algoritmo_a_estrella(self.pop(),1)
+        #self.algoritmo_a_estrella(self.pop(),1)
+        #self.busqueda_avara(self.pop(),1)
+        self.busqueda_uniforme(self.pop(),1)
