@@ -48,6 +48,7 @@ class busqueda:
         if self.se_interpone(m[0][2],m[1][1],m[2][0], propio, rival):
             r += 10
         return r
+
     def encuentra_tres_en_linea(self, e, s):
         m = e.get_estado()
         for x in range(3):
@@ -62,10 +63,39 @@ class busqueda:
             return True
         return False
 
+    def encuentra_ganador(self, e):
+        return self.encuentra_tres_en_linea(e,"X") or self.encuentra_tres_en_linea(e, "O")
+
+    def ver_espacios_vacio(self, e):
+        m = e.get_estado()
+        vacios = []
+        for i in range(3):
+            for j in range(3):
+                if m[i][j] == " ":
+                    vacios.append([i,j])
+        return vacios
+
+    def juego_terminado(self, e):
+        return len(self.ver_espacios_vacio(e)) == 0 or self.encuentra_ganador(e)
+
     def forzar_movimiento_ganador(self, e, propio):
         if self.encuentra_tres_en_linea(e, propio):
             return 100
         return 0       
+
+    def mostrar_estado_actual(self, e):
+        m = e.get_estado()
+        print("\nTablero Actual: ")
+        for i in range(3):
+            print(" " + m[i][0] + " | " + m[i][1] + " | " + m[i][2] + " ")
+            if i < 2:
+                print("___________")
+
+    def se_mueve_a(self, e, posicion, simbolo):
+        nueva_matriz = [filas[:] for filas in e.get_estado()] # copia de matriz, valor por valor
+        nueva_matriz[posicion[0]][posicion[1]] = simbolo
+
+        return estado(nueva_matriz, e, " fila: " + str(posicion[0]) + ", columna: " + str(posicion[1]), e.get_nivel() + 1)
 
     def calcular_heuristica(self, e, t):
         """e es un estado, t es un valor booleano"""
@@ -75,3 +105,45 @@ class busqueda:
         else:
             #Cuando es el jugador 2
             return self.calcular_p(e, self.s_min) - self.calcular_p(e, self.s_max) + self.incluir_recompensa(e, self.s_min, self.s_max) + self.forzar_movimiento_ganador(e, self.s_min)
+
+    def algoritmo_minimax(self, e, p, t):
+        if p == 0 or self.juego_terminado(e):
+            e.set_heuristica(self.calcular_heuristica(e, t))
+            self.estados_descubiertos += 1
+            return e.get_heuristica()
+
+        if t: #turno de max (jugador principal)
+            hijos = []
+            maximo = -math.inf
+            e_max = None
+            posiciones_hijos = self.ver_espacios_vacio(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_max))
+            for hijo in hijos:
+                eval = self.algoritmo_minimax(hijo, p - 1, False)
+                if eval >= maximo:
+                    maximo = eval
+                    e_max = [filas[:] for filas in hijo.get_estado()]
+            self.estado_solucion = [filas[:] for filas in e_max] # movimiento con mejor valor de evaluación
+            return maximo
+
+        else: #turno de min (adversario)
+            hijos = []
+            minimo = math.inf
+            e_min = None
+            posiciones_hijos = self.ver_espacios_vacio(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_min))
+            for hijo in hijos:
+                eval = self.algoritmo_minimax(hijo, p - 1, True)
+                if eval <= minimo:
+                    minimo = eval
+                    e_min = [filas[:] for filas in hijo.get_estado()]
+            self.estado_solucion = [filas[:] for filas in e_min]
+            return minimo
+
+    def inicia_busqueda(self):
+        self.algoritmo_minimax(self.estado_inicial, 2, True)
+        print("Estados Descubiertos: " + str(self.estados_descubiertos))
+        return self.estado_solucion
+                

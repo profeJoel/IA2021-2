@@ -7,9 +7,11 @@ if __name__ == "__main__":
     nombre = input("Ingrese el nombre del Usuario: ")
     humano = jugador(nombre, False)
     
-    nombre = input("Ingrese el nombre del Usuario: ")
-    humano2 = jugador(nombre, False)
+    #nombre = input("Ingrese el nombre del Usuario: ")
+    #humano2 = jugador(nombre, False)
+    bot = jugador("BOT", True)
 
-    tictactoe = tablero(humano, humano2)
+    #tictactoe = tablero(humano, humano2)
+    tictactoe = tablero(bot, humano)
     
     tictactoe.inicia_partida()
