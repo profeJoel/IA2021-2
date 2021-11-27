@@ -142,8 +142,70 @@ class busqueda:
             self.estado_solucion = [filas[:] for filas in e_min]
             return minimo
 
+    
+    def algoritmo_minimax_alpha_beta(self, e, p, alpha, beta, t):
+        if p == 0 or self.juego_terminado(e):
+            e.set_heuristica(self.calcular_heuristica(e, t))
+            self.estados_descubiertos += 1
+            return e.get_heuristica()
+
+        if t: #turno de max (jugador principal)
+            hijos = []
+            maximo = -math.inf
+            e_max = None
+            posiciones_hijos = self.ver_espacios_vacio(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_max))
+            for hijo in hijos:
+                eval = self.algoritmo_minimax_alpha_beta(hijo, p - 1, alpha, beta, False)
+                if eval >= maximo:
+                    maximo = eval
+                    e_max = [filas[:] for filas in hijo.get_estado()]
+
+                #modificación alpha-beta
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break
+
+            self.estado_solucion = [filas[:] for filas in e_max] # movimiento con mejor valor de evaluación
+            return maximo
+
+        else: #turno de min (adversario)
+            hijos = []
+            minimo = math.inf
+            e_min = None
+            posiciones_hijos = self.ver_espacios_vacio(e)
+            for posicion in posiciones_hijos:
+                hijos.append(self.se_mueve_a(e, posicion, self.s_min))
+            for hijo in hijos:
+                eval = self.algoritmo_minimax_alpha_beta(hijo, p - 1, alpha, beta, True)
+                if eval <= minimo:
+                    minimo = eval
+                    e_min = [filas[:] for filas in hijo.get_estado()]
+                
+                #Modificación Alpha-Beta
+                beta = min(beta,eval)
+                if beta <= alpha:
+                    break
+
+            self.estado_solucion = [filas[:] for filas in e_min]
+            return minimo
+
+
     def inicia_busqueda(self):
-        self.algoritmo_minimax(self.estado_inicial, 2, True)
+        #self.algoritmo_minimax(self.estado_inicial, 2, True)
+        #self.algoritmo_minimax_alpha_beta(self.estado_inicial, 6, -math.inf, math.inf, True)
+        mejor = -math.inf
+        lista_solucion = []
+        for profundidad in range(2,9):
+            parcial = self.algoritmo_minimax_alpha_beta(self.estado_inicial, profundidad, -math.inf, math.inf, True)
+            mejor = max(mejor, parcial)
+            lista_solucion.append([self.estado_solucion, parcial])
+            
+        for solucion in lista_solucion:
+            if solucion[1] == mejor:
+                self.estado_solucion = solucion[0]
+                
         print("Estados Descubiertos: " + str(self.estados_descubiertos))
         return self.estado_solucion
                 
